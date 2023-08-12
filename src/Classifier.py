@@ -37,7 +37,7 @@ class Classifier:
 
     def compare_models(self):
         """Build a new binary classifier."""
-        return compare_models(include=[MLPClassifier(), DummyClassifier(), SVC(), LogisticRegression(),
+        return compare_models(include=[MLPClassifier(), DummyClassifier(), LogisticRegression(),
                                        KNeighborsClassifier(), RandomForestClassifier(),
                                        AdaBoostClassifier(), GradientBoostingClassifier(), DecisionTreeClassifier()])
 
@@ -127,7 +127,7 @@ class Classifier:
         return classifier
 
     @classmethod
-    def predict_with_model(cls, classifier: "Classifier", data: pd.DataFrame, raw_score=False
+    def predict_with_model(cls, classifier: "Classifier", data: pd.DataFrame, raw_score=True
                            ) -> pd.DataFrame:
         """
         Predict class probabilities for the given data.
@@ -141,7 +141,7 @@ class Classifier:
         Returns:
             np.ndarray: The predicted classes or class probabilities.
         """
-        return predict_model(classifier, data, raw_score=True)
+        return predict_model(classifier, data, raw_score=raw_score)
 
     @classmethod
     def save_predictor_model(cls, model: "Classifier", predictor_dir_path: str) -> None:
