@@ -34,7 +34,6 @@ def create_predictions_dataframe(
     """
     headers = [schema.id] + schema.target_classes
     predictions_df = predictions_df.drop(columns=schema.features)
-    print(predictions_df)
     if return_probs:
         predictions_df = predictions_df.drop(columns=['prediction_label'])
         predictions_df.columns = headers

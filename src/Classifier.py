@@ -3,11 +3,16 @@ import os
 import pandas as pd
 import numpy as np
 import joblib
-from typing import Optional
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.exceptions import NotFittedError
 from pycaret.classification import compare_models, setup, finalize_model, predict_model
 from schema.data_schema import BinaryClassificationSchema
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.dummy import DummyClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 warnings.filterwarnings("ignore")
 
@@ -15,7 +20,7 @@ PREDICTOR_FILE_NAME = 'predictor.joblib'
 
 
 class Classifier:
-    """A wrapper class for the Random Forest binary classifier.
+    """A wrapper class for the binary classifier.
 
         This class provides a consistent interface that can be used with other
         classifier models.
@@ -31,11 +36,13 @@ class Classifier:
         self.model = self.compare_models()
 
     def compare_models(self):
-        """Build a new KNN binary classifier."""
-        return compare_models()
+        """Build a new binary classifier."""
+        return compare_models(include=[MLPClassifier(), DummyClassifier(), SVC(), LogisticRegression(),
+                                       KNeighborsClassifier(), RandomForestClassifier(),
+                                       AdaBoostClassifier(), GradientBoostingClassifier(), DecisionTreeClassifier()])
 
     def setup(self, train_input: pd.DataFrame, schema: BinaryClassificationSchema):
-        """Fit the KNN binary classifier to the training data.
+        """Fit the binary classifier with the training data.
 
         Args:
             train_input: The features of the training data.

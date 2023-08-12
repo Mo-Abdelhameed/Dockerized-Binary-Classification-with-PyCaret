@@ -8,9 +8,6 @@ from schema.data_schema import load_json_data_schema, save_schema
 from preprocessing.pipeline import create_pipeline, run_pipeline
 from utils import set_seeds, read_json_as_dict
 
-import warnings
-
-warnings.filterwarnings('ignore')
 
 logger = get_logger(task_name="train")
 
@@ -44,12 +41,9 @@ def run_training(
 
         logger.info("Loading training data...")
         x_train = read_csv_in_directory(train_dir)
-        pipeline = create_pipeline()
-        # x_train = run_pipeline(x_train, pipeline)
-        default_hyperparameters = read_json_as_dict(default_hyperparameters_file_path)
-
         target_encoder = get_target_encoder(data_schema)
         transformed_targets = transform_targets(target_encoder, x_train)
+        x_train[data_schema.target] = transformed_targets
         classifier = Classifier(x_train, data_schema)
         if not os.path.exists(predictor_dir_path):
             os.makedirs(predictor_dir_path)
