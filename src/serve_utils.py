@@ -8,11 +8,9 @@ from config import paths
 from data_models.data_validator import validate_data
 from logger import get_logger, log_error
 from predict import create_predictions_dataframe
-from Classifier import predict_with_model, load_predictor_model
+from Classifier import Classifier
 from schema.data_schema import load_saved_schema
 from utils import read_json_as_dict
-from joblib import load
-from preprocessing.preprocess import normalize, encode
 
 logger = get_logger(task_name="serve")
 
@@ -22,22 +20,17 @@ class ModelResources:
         self,
         saved_schema_dir_path: str,
         model_config_file_path: str,
-        preprocessing_dir_path: str,
         predictor_dir_path: str,
-        explainer_dir_path: str,
     ):
         self.data_schema = load_saved_schema(saved_schema_dir_path)
         self.model_config = read_json_as_dict(model_config_file_path)
-        self.predictor_model = load_predictor_model(predictor_dir_path)
+        self.predictor_model = Classifier.load_predictor_model(predictor_dir_path)
 
 
 def get_model_resources(
     saved_schema_dir_path: str = paths.SAVED_SCHEMA_DIR_PATH,
     model_config_file_path: str = paths.MODEL_CONFIG_FILE_PATH,
-    preprocessing_dir_path: str = paths.PREPROCESSING_DIR_PATH,
     predictor_dir_path: str = paths.PREDICTOR_DIR_PATH,
-    explainer_dir_path: str = paths.EXPLAINER_DIR_PATH,
-    **kwargs,
 ) -> ModelResources:
     """
     Returns an instance of ModelResources.
@@ -45,10 +38,7 @@ def get_model_resources(
     Args:
         saved_schema_dir_path (str): Dir path to the saved data schema.
         model_config_file_path (str): Path to the model configuration file.
-        preprocessing_dir_path (str): he dir path where to save the pipeline
-            and target encoder.
         predictor_dir_path (str): Path to the saved predictor model file.
-        explainer_dir_path (str): Dir path where explainer is saved.
     Returns:
         Loaded ModelResources object
     """
@@ -56,9 +46,7 @@ def get_model_resources(
         model_resources = ModelResources(
             saved_schema_dir_path,
             model_config_file_path,
-            preprocessing_dir_path,
             predictor_dir_path,
-            explainer_dir_path,
         )
     except Exception as exc:
         err_msg = "Error occurred loading model for serving."
@@ -88,7 +76,7 @@ def transform_req_data_and_make_predictions(
     5. Converts the predictions dataframe into a dictionary with required structure
 
     Args:
-        request (InferenceRequestBodyModel): The request body containing the input data.
+        data (pd.DataFrame): The data of the received request.
         model_resources (ModelResources): Resources needed by inference service.
         request_id (str): Unique request id for logging and tracking
 
@@ -100,29 +88,18 @@ def transform_req_data_and_make_predictions(
 
     # validate the data
     logger.info("Validating data...")
-    validated_data = validate_data(
-        data=data, data_schema=model_resources.data_schema, is_train=False
-    )
+    validate_data(data=data, data_schema=model_resources.data_schema, is_train=False)
 
     logger.info("Transforming data sample(s)...")
 
-    ids = data[model_resources.data_schema.id]
-    data = data[model_resources.data_schema.features]
-    scaler = load(paths.SCALER_FILE)
-    data = normalize(data, model_resources.data_schema, scaler)
-    transformed_data = encode(data, model_resources.data_schema, encoder='predict')
-
     logger.info("Making predictions...")
-    predictions_arr = predict_with_model(
-        model_resources.predictor_model, transformed_data, return_probs=True
+    predictions_arr = Classifier.predict_with_model(
+        model_resources.predictor_model, data, raw_score=True
     )
     logger.info("Converting predictions array into dataframe...")
     predictions_df = create_predictions_dataframe(
         predictions_arr,
-        model_resources.data_schema.target_classes,
-        model_resources.model_config["prediction_field_name"],
-        ids,
-        model_resources.data_schema.id,
+        model_resources.data_schema,
         return_probs=True,
     )
 
@@ -130,7 +107,7 @@ def transform_req_data_and_make_predictions(
     predictions_response = create_predictions_response(
         predictions_df, model_resources.data_schema, request_id
     )
-    return transformed_data, predictions_response
+    return data, predictions_response
 
 
 def create_predictions_response(
@@ -140,7 +117,7 @@ def create_predictions_response(
     Convert the predictions DataFrame to a response dictionary in required format.
 
     Args:
-        transformed_data (pd.DataFrame): The transfomed input data for prediction.
+        predictions_df (pd.DataFrame): The transformed input data for prediction.
         data_schema (Any): An instance of the BinaryClassificationSchema.
         request_id (str): Unique request id for logging and tracking
 

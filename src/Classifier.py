@@ -1,10 +1,9 @@
-import warnings
 import os
+import warnings
 import pandas as pd
 import numpy as np
 import joblib
 from sklearn.exceptions import NotFittedError
-from pycaret.classification import compare_models, setup, finalize_model, predict_model
 from schema.data_schema import BinaryClassificationSchema
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
@@ -12,6 +11,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.tree import DecisionTreeClassifier
+os.environ['MPLCONFIGDIR'] = os.getcwd() + "/configs/"
+from pycaret.classification import compare_models, setup, finalize_model, predict_model
 
 warnings.filterwarnings("ignore")
 
@@ -41,11 +42,11 @@ class Classifier:
                                        AdaBoostClassifier(), GradientBoostingClassifier(), DecisionTreeClassifier()])
 
     def setup(self, train_input: pd.DataFrame, schema: BinaryClassificationSchema):
-        """Fit the binary classifier with the training data.
+        """Setup the experiment of comparing different models.
 
         Args:
-            train_input: The features of the training data.
-            schema: The labels of the training data.
+            train_input: The data  of training including the target column.
+            schema: schema of the provided data.
         """
         setup(train_input, target=schema.target, remove_outliers=True, normalize=True, ignore_features=[schema.id])
         self._is_trained = True
@@ -70,21 +71,8 @@ class Classifier:
         """
         return self.model.predict_proba(inputs)
 
-    def evaluate(self, test_inputs: pd.DataFrame, test_targets: pd.Series) -> float:
-        """Evaluate the KNN binary classifier and return the accuracy.
-
-        Args:
-            test_inputs (pandas.DataFrame): The features of the test data.
-            test_targets (pandas.Series): The labels of the test data.
-        Returns:
-            float: The accuracy of the KNN binary classifier.
-        """
-        if self.model is not None:
-            return self.model.score(test_inputs, test_targets)
-        raise NotFittedError("Model is not fitted yet.")
-
     def save(self, model_dir_path: str) -> None:
-        """Save the KNN binary classifier to disk.
+        """Save the binary classifier to disk.
 
         Args:
             model_dir_path (str): Dir path to which to save the model.
@@ -97,7 +85,7 @@ class Classifier:
 
     @classmethod
     def load(cls, model_dir_path: str) -> "Classifier":
-        """Load the KNN binary classifier from disk.
+        """Load the binary classifier from disk.
 
         Args:
             model_dir_path (str): Dir path to the saved model.
@@ -106,24 +94,6 @@ class Classifier:
         """
         model = joblib.load(os.path.join(model_dir_path, PREDICTOR_FILE_NAME))
         return model
-
-    @classmethod
-    def train_predictor_model(cls, train_inputs: pd.DataFrame, train_targets: pd.Series,
-                              hyperparameters: dict) -> "Classifier":
-        """
-        Instantiate and train the predictor model.
-
-        Args:
-            train_inputs (pd.DataFrame): The training data inputs.
-            train_targets (pd.Series): The training data labels.
-            hyperparameters (dict): Hyperparameters for the classifier.
-
-        Returns:
-            'Classifier': The classifier model
-        """
-        classifier = Classifier(**hyperparameters)
-        classifier.fit(train_inputs=train_inputs, train_targets=train_targets)
-        return classifier
 
     @classmethod
     def predict_with_model(cls, classifier: "Classifier", data: pd.DataFrame, raw_score=True
@@ -168,20 +138,3 @@ class Classifier:
             Classifier: A new instance of the loaded classifier model.
         """
         return Classifier.load(predictor_dir_path)
-
-    @classmethod
-    def evaluate_predictor_model(cls,
-                                 model: "Classifier", x_test: pd.DataFrame, y_test: pd.Series
-                                 ) -> float:
-        """
-        Evaluate the classifier model and return the accuracy.
-
-        Args:
-            model (Classifier): The classifier model.
-            x_test (pd.DataFrame): The features of the test data.
-            y_test (pd.Series): The labels of the test data.
-
-        Returns:
-            float: The accuracy of the classifier model.
-        """
-        return model.evaluate(x_test, y_test)

@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from config import paths
 from utils import read_csv_in_directory, save_dataframe_as_csv
@@ -17,14 +16,9 @@ def create_predictions_dataframe(
     """
     Converts the predictions numpy array into a dataframe having the required structure.
 
-    Performs the following transformations:
-    - converts to pandas dataframe
-    - adds class labels as headers for columns containing predicted probabilities
-    - inserts the id column
-
     Args:
-        predictions_df (np.ndarray): Predicted probabilities from predictor model.
-        schema: List of target classes (labels).
+        predictions_df (predictions_df): Predicted probabilities from predictor model.
+        schema (BinaryClassificationSchema): schema of the data used in training.
         return_probs (bool, optional): If True, returns the predicted probabilities
             for each class. If False, returns the final predicted class for each
             data point. Defaults to False.
