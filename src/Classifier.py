@@ -39,7 +39,7 @@ class Classifier:
     def compare_models(self):
         """Build a new binary classifier."""
         return compare_models(include=[MLPClassifier(), DummyClassifier(),
-                                       LogisticRegression(), KNeighborsClassifier(n_neighbors=5, p=2,  leaf_size=5),
+                                       LogisticRegression(), KNeighborsClassifier(n_neighbors=5,  leaf_size=5),
                                        RandomForestClassifier(), AdaBoostClassifier(),
                                        GradientBoostingClassifier(), DecisionTreeClassifier(), 'xgboost'])
 
