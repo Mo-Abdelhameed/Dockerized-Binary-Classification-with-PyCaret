@@ -15,7 +15,16 @@ The following are the requirements for using your data with this model:
 Here are the highlights of this implementation: <br/>
 
 - A flexible preprocessing pipeline built using **PyCaret**. Transformations include missing value imputation, categorical encoding, outlier removal and feature scaling. <br/>
-- KNN, Random Forest, Decision Tree, MLP, Dummy Classifier, Gradient Boosting, AdaBoost, Logistic Regression and XGBoost algorithms built using **SciKit-Learn**
+- 9 Classifiers: 
+ - KNN
+ - Random Forest
+ - Decision Tree
+ - MLP
+ - Dummy Classifier
+ - Gradient Boosting
+ - AdaBoost
+ - Logistic Regression
+ - XGBoost
 - **FASTAPI** inference service for online inferences.
   Additionally, the implementation contains the following features:
 - **Data Validation**: Pydantic data validation is used for the schema, training and test files, as well as the inference request data.

@@ -3,7 +3,6 @@ import warnings
 import pandas as pd
 import numpy as np
 import joblib
-import xgboost
 from sklearn.exceptions import NotFittedError
 from schema.data_schema import BinaryClassificationSchema
 from sklearn.neighbors import KNeighborsClassifier
