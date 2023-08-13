@@ -1,12 +1,11 @@
 import os
 from Classifier import Classifier
-from preprocessing.target_encoder import get_target_encoder, transform_targets
+from src.target_encoder import get_target_encoder, transform_targets
 from utils import read_csv_in_directory
 from config import paths
 from logger import get_logger, log_error
 from schema.data_schema import load_json_data_schema, save_schema
-from preprocessing.pipeline import create_pipeline, run_pipeline
-from utils import set_seeds, read_json_as_dict
+from utils import set_seeds
 
 
 logger = get_logger(task_name="train")
