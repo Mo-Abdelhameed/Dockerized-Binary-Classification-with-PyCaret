@@ -3,6 +3,7 @@ import warnings
 import pandas as pd
 import numpy as np
 import joblib
+import xgboost
 from sklearn.exceptions import NotFittedError
 from schema.data_schema import BinaryClassificationSchema
 from sklearn.neighbors import KNeighborsClassifier
@@ -11,6 +12,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.tree import DecisionTreeClassifier
+
 os.environ['MPLCONFIGDIR'] = os.getcwd() + "/configs/"
 from pycaret.classification import compare_models, setup, finalize_model, predict_model
 
@@ -37,9 +39,10 @@ class Classifier:
 
     def compare_models(self):
         """Build a new binary classifier."""
-        return compare_models(include=[MLPClassifier(), DummyClassifier(), LogisticRegression(),
-                                       KNeighborsClassifier(), RandomForestClassifier(),
-                                       AdaBoostClassifier(), GradientBoostingClassifier(), DecisionTreeClassifier()])
+        return compare_models(include=[MLPClassifier(), DummyClassifier(),
+                                       LogisticRegression(), KNeighborsClassifier(),
+                                       RandomForestClassifier(), AdaBoostClassifier(),
+                                       GradientBoostingClassifier(), DecisionTreeClassifier(), 'xgboost'])
 
     def setup(self, train_input: pd.DataFrame, schema: BinaryClassificationSchema):
         """Setup the experiment of comparing different models.
