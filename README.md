@@ -1,4 +1,5 @@
 # Dockerized-Binary-Classification-Model-with-PyCaret
+
 ## Project Description
 
 This repository is a dockerized implementation of the re-usable binary classifier model. It is implemented in flexible way so that it can be used with any binary classification dataset with the use of CSV-formatted data, and a JSON-formatted data schema file. The main purpose of this repository is to provide a complete example of a machine learning model implementation that is ready for deployment.
@@ -15,7 +16,7 @@ The following are the requirements for using your data with this model:
 Here are the highlights of this implementation: <br/>
 
 - A flexible preprocessing pipeline built using **PyCaret**. Transformations include missing value imputation, categorical encoding, outlier removal and feature scaling. <br/>
-- 9 Classifiers: 
+- 9 Classifiers:
   - KNN
   - Random Forest
   - Decision Tree
@@ -48,7 +49,7 @@ The following is the directory structure of the project:
   - **`serve.py`**: This script is used to serve the model as a REST API using **FastAPI**. It loads the artifacts and creates a FastAPI server to serve the model. It provides 2 endpoints: `/ping` and `/infer`. The `/ping` endpoint is used to check if the server is running. The `/infer` endpoint is used to make predictions.
   - **`serve_utils.py`**: This script contains utility functions used by the `serve.py` script.
   - **`logger.py`**: This script contains the logger configuration using **logging** module.
-  - **`train.py`**: This script is used to train the model. It loads the data, preprocesses it, trains the model, and saves the artifacts in the path `./model_inputs_outputs/model/artifacts/`. It also saves a SHAP explainer object in the path `./model/artifacts/`.
+  - **`train.py`**: This script is used to train the model. It loads the data, preprocesses it, trains the model, and saves the artifacts in the path `./model_inputs_outputs/model/artifacts/`.
   - **`predict.py`**: This script is used to run batch predictions using the trained model. It loads the artifacts and creates and saves the predictions in a file called `predictions.csv` in the path `./model_inputs_outputs/outputs/predictions/`.
   - **`utils.py`**: This script contains utility functions used by the other scripts.
 - **`.gitignore`**: This file specifies the files and folders that should be ignored by Git.
@@ -148,31 +149,6 @@ The key `instances` contains a list of objects, each of which is a sample for wh
     }
   ]
 }
-```
-
-#### Getting predictions and local explanations
-
-To get predictions and explanations for a single sample, use the following request to send to `/explain` endpoint (same structure as data for the `/infer` endpoint):
-
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{
-  {
-    "instances": [
-        {
-            "PassengerId": "879",
-            "Pclass": 3,
-            "Name": "Laleff, Mr. Kristo",
-            "Sex": "male",
-            "Age": None,
-            "SibSp": 0,
-            "Parch": 0,
-            "Ticket": "349217",
-            "Fare": 7.8958,
-            "Cabin": None,
-            "Embarked": "S"
-        }
-    ]
-}' http://localhost:8080/explain
 ```
 
 #### OpenAPI
