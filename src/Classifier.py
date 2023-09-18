@@ -57,7 +57,6 @@ class Classifier:
             normalize=True,
             ignore_features=[schema.id],
             train_size=0.9,
-            fix_imbalance=True
         )
         self._is_trained = True
 
