@@ -50,7 +50,15 @@ class Classifier:
             train_input: The data  of training including the target column.
             schema: schema of the provided data.
         """
-        setup(train_input, target=schema.target, remove_outliers=True, normalize=True, ignore_features=[schema.id], train_size=0.9)
+        setup(
+            train_input,
+            target=schema.target,
+            remove_outliers=True,
+            normalize=True,
+            ignore_features=[schema.id],
+            train_size=0.9,
+            fix_imbalance=True
+        )
         self._is_trained = True
 
     def predict(self, inputs: pd.DataFrame) -> np.ndarray:
