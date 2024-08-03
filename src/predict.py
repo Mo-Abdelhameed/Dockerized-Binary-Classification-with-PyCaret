@@ -1,6 +1,6 @@
 import pandas as pd
 from config import paths
-from utils import read_csv_in_directory, save_dataframe_as_csv
+from utils import read_csv_in_directory, save_dataframe_as_csv, ResourceTracker
 from logger import get_logger
 from Classifier import Classifier
 from schema.data_schema import load_saved_schema, BinaryClassificationSchema
@@ -46,11 +46,12 @@ def run_batch_predictions() -> None:
         adds ids into the predictions dataframe,
         and saves the predictions as a CSV file.
         """
-    x_test = read_csv_in_directory(paths.TEST_DIR)
-    data_schema = load_saved_schema(paths.SAVED_SCHEMA_DIR_PATH)
-    model = Classifier.load(paths.PREDICTOR_DIR_PATH)
-    logger.info("Making predictions...")
-    predictions_df = Classifier.predict_with_model(model, x_test, raw_score=True)
+    with ResourceTracker(logger, monitoring_interval=0.1):
+        x_test = read_csv_in_directory(paths.TEST_DIR)
+        data_schema = load_saved_schema(paths.SAVED_SCHEMA_DIR_PATH)
+        model = Classifier.load(paths.PREDICTOR_DIR_PATH)
+        logger.info("Making predictions...")
+        predictions_df = Classifier.predict_with_model(model, x_test, raw_score=True)
     predictions_df = create_predictions_dataframe(
         predictions_df,
         data_schema,
